@@ -18,6 +18,10 @@ source ~/.bashrc
 # Install dependancies
 sudo apt -y install python-rosinstall python-rosinstall-generator python-wstool build-essential
 
+# Install ros-serial for arduino
+sudo apt-get install ros-melodic-rosserial-arduino
+sudo apt-get install ros-melodic-rosserial
+
 # Install Arduino IDE
 ARDUINO_VER="arduino-1.8.10"
 ARDUINO_PLATFORM="linux64"

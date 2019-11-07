@@ -1,0 +1,6 @@
+[submodule "ROS/src/rosserial"]
+	path = ROS/src/rosserial
+	url = https://github.com/ros-drivers/rosserial.git
+[submodule "Arduino/ROS-motor-control"]
+	path = Arduino/ROS-motor-control
+	url = https://github.com/WWU-Robotics-Club/ROS-motor-control.git
