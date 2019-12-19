@@ -1,4 +1,5 @@
 # This script was tested on Ubuntu 18.04.3 64bit X86
+USERNAME = "rover"
 
 # set up ROS melodic http://wiki.ros.org/melodic/Installation/Ubuntu
 # Set up sources.list
@@ -35,6 +36,14 @@ sudo /opt/arduino/$ARDUINO_VER/install.sh
 # Cleanup
 sudo rm $ARDUINO_VER-$ARDUINO_PLATFORM.tar.xz
 
+# Add user to dialout group. Allows usb port access https://www.arduino.cc/en/Guide/Linux#toc6
+sudo usermod -a -G dialout $USERNAME
+# reload dialout group so we don't have to logout and back in
+# https://superuser.com/questions/272061/reload-a-linux-users-group-assignments-without-logging-out
+CURRENT_GROUP="$(id -g)"
+newgrp dialout
+newgrp $CURRENT_GROUP
+
 # Install Teensyduino arduino extension https://www.pjrc.com/teensy/td_download.html
 # Allows non-root users to use it?
 sudo cp 49-teensy.rules /etc/udev/rules.d/
@@ -44,5 +53,7 @@ wget https://www.pjrc.com/teensy/td_148/TeensyduinoInstall.linux64
 echo "Click through the installer and set install location to /opt/arduino/$ARDUINO_VER"
 chmod +x TeensyduinoInstall.linux64
 sudo ./TeensyduinoInstall.linux64
+
+
 
 
