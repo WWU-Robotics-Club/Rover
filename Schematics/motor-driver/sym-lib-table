@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name Teensy)(type Legacy)(uri ${KIPRJMOD}/../libraries/teensy_library/teensy.lib)(options "")(descr ""))
+  (lib (name rover)(type Legacy)(uri "C:/Users/c1000/OneDrive - Walla Walla University/GitHub/Rover/Schematics/libraries/rover.lib")(options "")(descr ""))
+)

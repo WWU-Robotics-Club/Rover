@@ -4,3 +4,6 @@
 [submodule "Arduino/ROS-motor-control"]
 	path = Arduino/ROS-motor-control
 	url = https://github.com/WWU-Robotics-Club/ROS-motor-control.git
+[submodule "Schematics/libraries/teensy_library"]
+	path = Schematics/libraries/teensy_library
+	url = https://github.com/XenGi/teensy_library.git
