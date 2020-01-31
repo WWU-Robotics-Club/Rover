@@ -1,0 +1,9 @@
+image: gitlab.cs.wallawalla.edu:5050/robotics-club/Rover:latest
+
+stages:
+  - build
+
+test_step:
+  stage: build
+  script:
+    - echo "Hello world"
