@@ -1,4 +1,4 @@
-image: gitlab.cs.wallawalla.edu:5050/robotics-club/Rover:latest
+image: osrf/ros:melodic-desktop-full-bionic
 
 stages:
   - build
