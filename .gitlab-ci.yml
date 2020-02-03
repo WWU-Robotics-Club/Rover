@@ -14,8 +14,8 @@ run_cpplint:
     - docker
   script:
     - cd Arduino
-    - find -name '*.h' -exec cpplint {} +
-    - find -name '*.cpp' -exec cpplint {} +
+    - find -name '*.h' -exec cpplint --filter=-legal/copyright,-build/include {} +
+    - find -name '*.cpp' -exec cpplint --filter=-legal/copyright,-build/include {} +
 
 run_cppcheck:
   stage: analysis
