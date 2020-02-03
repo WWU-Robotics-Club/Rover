@@ -1,5 +1,8 @@
 image: gitlab.cs.wallawalla.edu:5050/robotics-club/rover:latest
 
+variables:
+  GIT_SUBMODULE_STRATEGY: normal
+
 stages:
   - analysis
   - build
