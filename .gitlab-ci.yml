@@ -1,9 +1,40 @@
-image: osrf/ros:melodic-desktop-full-bionic
+image: gitlab.cs.wallawalla.edu:5050/robotics-club/rover:latest
 
 stages:
+  - analysis
   - build
+  - deploy
 
-test_step:
-  stage: build
+run_cpplint:
+  stage: analysis
+  tags:
+    - docker
   script:
-    - echo "Hello world"
+    - cd Arduino
+    - find -name '*.h' -exec cpplint {} +
+    - find -name '*.cpp' -exec cpplint {} +
+
+run_cppcheck:
+  stage: analysis
+  tags:
+    - docker
+  script:
+    - cd Arduino
+    - find -name '*.h' -exec cppcheck --enable=all --suppress=missingIncludeSystem --language=c++ {} +
+    - find -name '*.cpp' -exec cppcheck --enable=all --suppress=missingIncludeSystem --language=c++ {} +
+
+build_arduino:
+  stage: build
+  tags:
+    - docker
+  script:
+    - find -name 'platformio.ini' -execdir platformio run \;
+
+remote_runner_test:
+  stage: deploy
+  tags:
+    - rover_remote
+  script:
+    - hostname
+  #only:
+    #- master
