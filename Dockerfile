@@ -6,14 +6,14 @@ RUN apt-get update && apt-get install -y \
   ros-melodic-rosserial-arduino \
   ros-melodic-rosserial \
   cppcheck \
+  gcc \
   python-pip && \
   pip install -U platformio && \
+  platformio platform install teensy && \
   python -m pip install cpplint
 
-# This is done automatically later but it will speed things up to do it now
-RUN platformio platform install teensy
+COPY ROS ROS/
+COPY Arduino Arduino/
 
 # reset the entrypoint set by https://github.com/osrf/docker_images/blob/master/ros/melodic/ubuntu/bionic/ros-core/Dockerfile
-ENTRYPOINT []
-# open a shell
-CMD ["sh"]
+ENTRYPOINT ["ROS/start.sh"]

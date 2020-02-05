@@ -33,11 +33,11 @@ build_arduino:
   script:
     - find -name 'platformio.ini' -execdir platformio run \;
 
-remote_runner_test:
+deploy_docker:
   stage: deploy
   tags:
     - rover_remote
   script:
-    - hostname
+    - docker-compose up -d --build
   #only:
     #- master
