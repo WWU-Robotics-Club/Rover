@@ -40,4 +40,15 @@ deploy_docker:
   script:
     - docker-compose up -d --build
   #only:
-    #- master
+    #- refs:
+      #- master
+
+upload_arduino:
+  stage: deploy
+  tags:
+    - rover_remote
+  script:
+    # todo: do this in docker container
+    - cd Arduino
+    - find -name 'platformio.ini' -execdir platformio run --target upload \;
+  when: manual
