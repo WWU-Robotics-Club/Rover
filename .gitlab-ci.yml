@@ -1,0 +1,54 @@
+image: gitlab.cs.wallawalla.edu:5050/robotics-club/rover:latest
+
+variables:
+  GIT_SUBMODULE_STRATEGY: normal
+
+stages:
+  - analysis
+  - build
+  - deploy
+
+run_cpplint:
+  stage: analysis
+  tags:
+    - docker
+  script:
+    - cd Arduino
+    - find -name '*.h' -exec cpplint --filter=-legal/copyright,-build/include {} +
+    - find -name '*.cpp' -exec cpplint --filter=-legal/copyright,-build/include {} +
+
+run_cppcheck:
+  stage: analysis
+  tags:
+    - docker
+  script:
+    - cd Arduino
+    - find -name '*.h' -exec cppcheck --enable=all --suppress=missingIncludeSystem --language=c++ {} +
+    - find -name '*.cpp' -exec cppcheck --enable=all --suppress=missingIncludeSystem --language=c++ {} +
+
+build_arduino:
+  stage: build
+  tags:
+    - docker
+  script:
+    - find -name 'platformio.ini' -execdir platformio run \;
+
+deploy_docker:
+  stage: deploy
+  tags:
+    - rover_remote
+  script:
+    - docker-compose up -d --build
+  #only:
+    #- refs:
+      #- master
+
+upload_arduino:
+  stage: deploy
+  tags:
+    - rover_remote
+  script:
+    # todo: do this in docker container
+    - cd Arduino
+    - find -name 'platformio.ini' -execdir platformio run --target upload \;
+  when: manual

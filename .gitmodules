@@ -3,4 +3,10 @@
 	url = https://github.com/ros-drivers/rosserial.git
 [submodule "Arduino/ROS-motor-control"]
 	path = Arduino/ROS-motor-control
-	url = https://github.com/WWU-Robotics-Club/ROS-motor-control.git
+	url = https://gitlab.cs.wallawalla.edu/robotics-club/ROS-motor-control.git
+[submodule "Schematics/libraries/teensy_lisbrary"]
+	path = Schematics/libraries/teensy_library
+	url = https://github.com/XenGi/teensy_library.git
+[submodule "Schematics/libraries/teensy.pretty"]
+	path = Schematics/libraries/teensy.pretty
+	url = https://github.com/XenGi/teensy.pretty.git

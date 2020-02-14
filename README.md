@@ -2,4 +2,4 @@
 
 A robotic rover project.
 
-See the wiki for more info: https://github.com/WWU-Robotics-Club/Rover/wiki
+See the wiki for more info: https://gitlab.cs.wallawalla.edu/robotics-club/Rover/-/wikis/home

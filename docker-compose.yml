@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  ros-master:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"
