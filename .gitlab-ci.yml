@@ -1,4 +1,6 @@
-image: gitlab.cs.wallawalla.edu:5050/robotics-club/rover:latest
+image:
+  name: gitlab.cs.wallawalla.edu:5050/robotics-club/rover:latest
+  entrypoint: [""]
 
 variables:
   GIT_SUBMODULE_STRATEGY: normal
@@ -39,9 +41,9 @@ deploy_docker:
     - rover_remote
   script:
     - docker-compose up -d --build
-  #only:
-    #- refs:
-      #- master
+  only:
+    - refs:
+      - master
 
 upload_arduino:
   stage: deploy
