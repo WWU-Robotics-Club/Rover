@@ -42,7 +42,7 @@ deploy_docker:
   script:
     - docker-compose up -d --build
   only:
-    - refs:
+    refs:
       - master
 
 upload_arduino:
