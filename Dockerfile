@@ -5,13 +5,15 @@ FROM osrf/ros:melodic-desktop-full-bionic
 RUN apt-get update && apt-get install -y \
   ros-melodic-rosserial-arduino \
   ros-melodic-rosserial \
+  ros-melodic-rosbridge-server \
   cppcheck \
   gcc \
   software-properties-common \
   python-pip && \
   pip install -U platformio && \
   platformio platform install teensy && \
-  python -m pip install cpplint
+  python -m pip install cpplint && \
+  pip install pylint
 
 # Install realsense packages
 # prevents apt-keye adv warning https://github.com/wv-gis/mudak-wrm-public/issues/2

@@ -1,9 +1,11 @@
 #!/usr/bin/python
+"""This script is an example ros publisher"""
 
 import rospy
 from std_msgs.msg import String
 
 def talker():
+    """Runs a loop publishing a message"""
     pub = rospy.Publisher('chatter', String, queue_size=10)
     rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(2)
