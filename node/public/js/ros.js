@@ -4,7 +4,7 @@
 // -----------------
 
 var ros = new ROSLIB.Ros({
-    url: 'wss://localhost/ws'
+    url: 'wss://' + window.location.hostname + '/ws'
 });
 
 ros.on('connection', function () {
@@ -19,62 +19,18 @@ ros.on('close', function () {
     console.log('Connection to websocket server closed.');
 });
 
-// Publishing a Topic
-// ------------------
-
-var cmdVel = new ROSLIB.Topic({
-    ros: ros,
-    name: '/cmd_vel',
-    messageType: 'geometry_msgs/Twist'
-});
-
-var twist = new ROSLIB.Message({
-    linear: {
-        x: 0.1,
-        y: 0.2,
-        z: 0.3
-    },
-    angular: {
-        x: -0.1,
-        y: -0.2,
-        z: -0.3
-    }
-});
-cmdVel.publish(twist);
-
 // Subscribing to a Topic
 // ----------------------
 
-var listener = new ROSLIB.Topic({
+var listenerTopic = new ROSLIB.Topic({
     ros: ros,
     name: '/listener',
     messageType: 'std_msgs/String'
 });
 
-listener.subscribe(function (message) {
-    console.log('Received message on ' + listener.name + ': ' + message.data);
-    listener.unsubscribe();
-});
-
-// Calling a service
-// -----------------
-
-var addTwoIntsClient = new ROSLIB.Service({
-    ros: ros,
-    name: '/add_two_ints',
-    serviceType: 'rospy_tutorials/AddTwoInts'
-});
-
-var request = new ROSLIB.ServiceRequest({
-    a: 1,
-    b: 2
-});
-
-addTwoIntsClient.callService(request, function (result) {
-    console.log('Result for service call on '
-        + addTwoIntsClient.name
-        + ': '
-        + result.sum);
+listenerTopic.subscribe(function (message) {
+    console.log('Received message on ' + listenerTopic.name + ': ' + message.data);
+    listenerTopic.unsubscribe();
 });
 
 // Getting and setting a param value
@@ -93,3 +49,76 @@ maxVelX.set(0.8);
 maxVelX.get(function (value) {
     console.log('MAX VAL: ' + value);
 });
+
+
+createJoystick = function () {
+    var options = {
+        zone: document.getElementById('zone_joystick'),
+        threshold: 0.1,
+        position: { left: 50 + '%' },
+        mode: 'static',
+        size: 150,
+        color: '#000000',
+    };
+    var manager = nipplejs.create(options);
+
+    var linear_speed = 0;
+    var angular_speed = 0;
+    var timer;
+
+
+    manager.on('start', function (event, nipple) {
+        console.log("Movement start");
+        // start sending updates at 10hz
+        timer = setInterval(function () {
+            move(linear_speed, angular_speed);
+        }, 200);
+    });
+
+    // update inear_speed and angular_speed whenever the joystick moves
+    manager.on('move', function (event, nipple) {
+        max_linear = 5.0; // m/s
+        max_angular = 2.0; // rad/s
+        max_distance = 75.0; // pixels;
+        linear_speed = Math.sin(nipple.angle.radian) * max_linear * nipple.distance/max_distance;
+        angular_speed = -Math.cos(nipple.angle.radian) * max_angular * nipple.distance/max_distance;
+    });
+
+    manager.on('end', function () {
+        console.log("Movement end");
+        if (timer) {
+            clearInterval(timer);
+        }
+        self.move(0, 0);
+    });
+}
+
+window.onload = function () {
+    createJoystick();
+}
+
+// Publishing a Topic
+// ------------------
+
+var webVelTopic = new ROSLIB.Topic({
+    ros: ros,
+    name: '/web_vel',
+    messageType: 'geometry_msgs/Twist'
+});
+
+
+move = function (linear, angular) {
+    var twist = new ROSLIB.Message({
+        linear: {
+            x: linear,
+            y: 0,
+            z: 0
+        },
+        angular: {
+            x: 0,
+            y: 0,
+            z: angular
+        }
+    });
+    webVelTopic.publish(twist);
+}

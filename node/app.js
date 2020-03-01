@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const router = express.Router();
 
-const path = __dirname + '/public/';
+const staticPath = __dirname + '/public/';
 const httpsPort = 8080;
 
 const WebSocket = require('ws');
@@ -18,11 +18,11 @@ router.use(function (req,res,next) {
 
 // route GET requests to / to index.html
 router.get('/',function(req,res){
-  res.sendFile(path + 'index.html');
+  res.sendFile(staticPath + 'index.html');
 });
 
 // route requests to static files
-app.use(express.static(path));
+app.use(express.static(staticPath));
 app.use('/', router);
 
 app.listen(httpsPort, function () {
