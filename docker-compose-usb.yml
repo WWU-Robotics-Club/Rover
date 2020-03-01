@@ -1,0 +1,7 @@
+# adds USB access
+version: '3'
+
+services:
+  ros-master:
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"

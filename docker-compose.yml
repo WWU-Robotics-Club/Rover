@@ -5,5 +5,32 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    devices:
-      - "/dev/ttyACM0:/dev/ttyACM0"
+    # rosbridge runs on this port
+    expose: 
+      - "9090"
+  nodejs:
+    build:
+      context: ./node
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    user: node
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./node/:/home/node/app
+    expose:
+      - "8080" # http
+      - "8081" # websocket
+    command: npm start
+  webserver:
+    image: nginx:mainline-alpine
+    restart: unless-stopped
+    ports: 
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./node:/var/www/html
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - nodejs

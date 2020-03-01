@@ -78,3 +78,10 @@ fp-info-cache
 
 # Autosave files
 _autosave-*
+
+# node.js
+node/node_modules
+
+# nginx
+*/cert.pem
+*/key.pem
