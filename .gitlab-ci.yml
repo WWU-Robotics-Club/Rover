@@ -28,6 +28,14 @@ run_cppcheck:
     - find -name '*.h' -exec cppcheck --enable=all --suppress=missingIncludeSystem --language=c++ {} +
     - find -name '*.cpp' -exec cppcheck --enable=all --suppress=missingIncludeSystem --language=c++ {} +
 
+run_pylint:
+  stage: analysis
+  tags:
+    - docker
+  script:
+    - cd ROS/src/rover_core
+    - find -name '*.py' -exec echo {} \; -exec pylint {} \;
+
 build_arduino:
   stage: build
   tags:
