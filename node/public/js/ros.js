@@ -2,22 +2,30 @@
 
 // Connecting to ROS
 // -----------------
+var rosWsUrl = 'wss://' + window.location.hostname + '/ws'
 
 var ros = new ROSLIB.Ros({
-    url: 'wss://' + window.location.hostname + '/ws'
+    url: rosWsUrl
 });
 
 ros.on('connection', function () {
     console.log('Connected to websocket server.');
+    document.getElementById("websocketStatus").textContent = "Connected";
 });
 
 ros.on('error', function (error) {
     console.log('Error connecting to websocket server: ', error);
+    document.getElementById("websocketStatus").textContent = "Error";
 });
 
 ros.on('close', function () {
     console.log('Connection to websocket server closed.');
+    document.getElementById("websocketStatus").textContent = "Closed";
 });
+
+function rosReconnect() {
+    ros.connect(rosWsUrl);
+}
 
 // Subscribing to a Topic
 // ----------------------
@@ -33,29 +41,45 @@ listenerTopic.subscribe(function (message) {
     listenerTopic.unsubscribe();
 });
 
-// Getting and setting a param value
-// ---------------------------------
+function rosRefreshStatus() {
+    // Get topics list
+    ros.getTopics(function(data) {
+        el = document.getElementById("topicsList");
+        el.innerHTML = "";
+        for (var i=0; i < data.topics.length; i++) {
+            var item = document.createElement("li");
+            item.textContent = data.topics[i];
+            el.appendChild(item);
+        } 
+    });
 
-ros.getParams(function (params) {
-    console.log(params);
-});
+    // Get nodes list
+    ros.getNodes(function(data) {
+        el = document.getElementById("nodeList");
+        el.innerHTML = "";
+        for (var i=0; i < data.length; i++) {
+            var item = document.createElement("li");
+            item.textContent = data[i];
+            el.appendChild(item);
+        } 
+    });
+
+    // List params
+    ros.getParams(function (params) {
+        console.log(params);
+    });
+}
 
 var maxVelX = new ROSLIB.Param({
     ros: ros,
     name: 'max_vel_y'
 });
 
-maxVelX.set(0.8);
-maxVelX.get(function (value) {
-    console.log('MAX VAL: ' + value);
-});
-
-
 createJoystick = function () {
     var options = {
-        zone: document.getElementById('zone_joystick'),
+        zone: document.getElementById('joystick1'),
         threshold: 0.1,
-        position: { left: 50 + '%' },
+        position: { left: 50 + '%', top: 50 + '%' },
         mode: 'static',
         size: 150,
         color: '#000000',
@@ -65,7 +89,6 @@ createJoystick = function () {
     var linear_speed = 0;
     var angular_speed = 0;
     var timer;
-
 
     manager.on('start', function (event, nipple) {
         console.log("Movement start");
@@ -89,7 +112,7 @@ createJoystick = function () {
         if (timer) {
             clearInterval(timer);
         }
-        self.move(0, 0);
+        move(0, 0);
     });
 }
 
@@ -121,4 +144,20 @@ move = function (linear, angular) {
         }
     });
     webVelTopic.publish(twist);
+    
+    document.getElementById("joystick_linear").textContent = linear.toFixed(2);
+    document.getElementById("joystick_angular").textContent = angular.toFixed(2);
 }
+
+
+// Getting and setting a param value
+// ---------------------------------
+
+ros.getParams(function (params) {
+    console.log(params);
+});
+
+maxVelX.set(0.8);
+maxVelX.get(function (value) {
+    console.log('MAX VAL: ' + value);
+});
