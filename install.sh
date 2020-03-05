@@ -18,12 +18,15 @@ source ~/.bashrc
 # Install dependancies
 sudo apt -y install python-rosinstall python-rosinstall-generator python-wstool build-essential
 
+# Install some ROS packages
 # Install ros-serial for arduino
 sudo apt-get install ros-melodic-rosserial-arduino
 sudo apt-get install ros-melodic-rosserial
-
 # https://wiki.ros.org/rosbridge_suite
 sudo apt-get install ros-melodic-rosbridge-server
+# https://github.com/IntelRealSense/librealsense
+sudo apt-get install -y librealsense2-dkms librealsense2-utils librealsense2-dev
+# sudo apt-get install -y librealsense2-dbg # uncomment if debug symbols are needed
 
 # Install PlatformIO
 sudo apt-get install gcc python-pip && \
