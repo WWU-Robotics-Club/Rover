@@ -9,9 +9,13 @@ def callback(data):
     rospy.loginfo(rospy.get_caller_id, data.data)
 
 def velocity_pub():
-    pub = ros.Publisher('/wheel_velocity', String, queue_size=10)
-    rate = rospy.Rate(10)
-    pub.publish("1")
+    pub = rospy.Publisher('/wheel_velocity', String, queue_size=10)
+    rate = rospy.Rate(1)
+    while not rospy.is_shutdown():
+        pub.publish(String("0"))
+        rate.sleep()
+        pub.publish(String("0.5"))
+        rate.sleep()
 
 def position_sub():
     rospy.Subscriber("/wheel_position", String, callback)
@@ -25,9 +29,7 @@ def position_sub():
     
     print(message)
 
-def
-
-''' def camerapos_sub(_):      
+    ''' def camerapos_sub(_):      
     rospy.init_node('navigation', anonymous=True)
     rospy.Subscriber("camera_position", String, callback)
 
