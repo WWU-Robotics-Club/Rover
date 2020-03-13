@@ -10,3 +10,9 @@
 [submodule "Schematics/libraries/teensy.pretty"]
 	path = Schematics/libraries/teensy.pretty
 	url = https://github.com/XenGi/teensy.pretty.git
+[submodule "ROS/src/realsense-ros"]
+	path = ROS/src/realsense-ros
+	url = https://github.com/IntelRealSense/realsense-ros.git
+[submodule "ROS/src/ddynamic_reconfigure"]
+	path = ROS/src/ddynamic_reconfigure
+	url = https://github.com/pal-robotics/ddynamic_reconfigure.git
