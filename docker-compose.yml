@@ -8,6 +8,7 @@ services:
     # rosbridge runs on this port
     expose: 
       - "9090"
+    privileged: true
   nodejs:
     build:
       context: ./node
