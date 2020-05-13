@@ -100,8 +100,8 @@ createJoystick = function () {
 
     // update inear_speed and angular_speed whenever the joystick moves
     manager.on('move', function (event, nipple) {
-        max_linear = 5.0; // m/s
-        max_angular = 2.0; // rad/s
+        max_linear = 0.7; // m/s
+        max_angular = 1.5; // rad/s
         max_distance = 75.0; // pixels;
         linear_speed = Math.sin(nipple.angle.radian) * max_linear * nipple.distance/max_distance;
         angular_speed = -Math.cos(nipple.angle.radian) * max_angular * nipple.distance/max_distance;
@@ -125,7 +125,7 @@ window.onload = function () {
 
 var webVelTopic = new ROSLIB.Topic({
     ros: ros,
-    name: '/web_vel',
+    name: '/wheels/cmd_velocity',
     messageType: 'geometry_msgs/Twist'
 });
 
