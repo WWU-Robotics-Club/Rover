@@ -1,4 +1,5 @@
 (sym_lib_table
   (lib (name Teensy)(type Legacy)(uri ${KIPRJMOD}/../libraries/teensy_library/teensy.lib)(options "")(descr ""))
   (lib (name rover)(type Legacy)(uri ${KIPRJMOD}/../libraries/rover.lib)(options "")(descr ""))
+  (lib (name TXB0108PWR)(type Legacy)(uri ${KIPRJMOD}/../libraries/TXB0108PWR/TXB0108PWR.lib)(options "")(descr ""))
 )
