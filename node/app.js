@@ -31,10 +31,11 @@ app.listen(httpsPort, function () {
 
 
 const wss = new WebSocket.Server({ port: wssPort });
+const rosWs = new WebSocket(rosWsAddr);
 
 wss.on('connection', function connection(ws, request, client) {
   console.log('New wss connection');
-  const rosWs = new WebSocket(rosWsAddr);
+  //const rosWs = new WebSocket(rosWsAddr);
   // relay messages from the client
   ws.on('message', function message(msg) {
     console.log(`Received message ${msg} from user`);

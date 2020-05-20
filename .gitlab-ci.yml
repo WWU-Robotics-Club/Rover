@@ -16,8 +16,8 @@ run_cpplint:
     - docker
   script:
     - cd Arduino
-    - find -name '*.h' -exec cpplint --filter=-legal/copyright,-build/include,-runtime/threadsafe_fn {} +
-    - find -name '*.cpp' -exec cpplint --filter=-legal/copyright,-build/include {} +
+    - find -name '*.h' -not -path "*/.pio/*" -exec cpplint --filter=-legal/copyright,-build/include,-runtime/threadsafe_fn {} +
+    - find -name '*.cpp' -not -path "*/.pio/*" -exec cpplint --filter=-legal/copyright,-build/include,-runtime/threadsafe_fn {} +
 
 run_cppcheck:
   stage: analysis
