@@ -46,7 +46,12 @@
             <div class="col-lg-6">
                 <p>When this joystick is moved, it sends its position to ROS. This page connects to ROS via websocket.</p>
                 <div id="joystick1"></div>
-                <p>Sent linear: <span id="joystick_linear"></span> angular: <span id="joystick_angular"></span></p>
+                <p>Left/right mode:</p>
+                <input type="radio" id="joy-mode1" name="joystick-mode" value="rotate" onchange="changeJoystickMode(this)" checked>
+                <label for="joy-mode1">rotate</label>
+                <input type="radio" id="joy-mode2" name="joystick-mode" value="translate" onchange="changeJoystickMode(this)">
+                <label for="joy-mode2">translate</label><br>
+                <p>Sent x: <span id="joystick_forward"></span>, y: <span id="joystick_left"></span>, theta: <span id="joystick_angular"></span></p>
             </div>
             <div class="col-lg-6">
                 <p>Websocket status: <span id="websocketStatus">Not connected</span>

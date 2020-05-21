@@ -75,6 +75,13 @@ var maxVelX = new ROSLIB.Param({
     name: 'max_vel_y'
 });
 
+var joystickMode = "rotate"; // "translate";
+
+function changeJoystickMode(target) {
+    joystickMode = target.value;
+    console.log(joystickMode);
+}
+
 createJoystick = function () {
     var options = {
         zone: document.getElementById('joystick1'),
@@ -86,7 +93,8 @@ createJoystick = function () {
     };
     var manager = nipplejs.create(options);
 
-    var linear_speed = 0;
+    var forward_speed = 0;
+    var left_speed = 0;
     var angular_speed = 0;
     var timer;
 
@@ -94,7 +102,7 @@ createJoystick = function () {
         console.log("Movement start");
         // start sending updates at 10hz
         timer = setInterval(function () {
-            move(linear_speed, angular_speed);
+            move(forward_speed, left_speed, angular_speed);
         }, 200);
     });
 
@@ -103,8 +111,15 @@ createJoystick = function () {
         max_linear = 0.7; // m/s
         max_angular = 1.5; // rad/s
         max_distance = 75.0; // pixels;
-        linear_speed = Math.sin(nipple.angle.radian) * max_linear * nipple.distance/max_distance;
+        forward_speed = Math.sin(nipple.angle.radian) * max_linear * nipple.distance/max_distance;
+        left_speed = -Math.cos(nipple.angle.radian) * max_linear * nipple.distance/max_distance;
         angular_speed = -Math.cos(nipple.angle.radian) * max_angular * nipple.distance/max_distance;
+
+        if (joystickMode === "rotate") {
+            left_speed = 0;
+        } else if (joystickMode === "translate") {
+            angular_speed = 0;
+        }
     });
 
     manager.on('end', function () {
@@ -112,7 +127,7 @@ createJoystick = function () {
         if (timer) {
             clearInterval(timer);
         }
-        move(0, 0);
+        move(0, 0, 0);
     });
 }
 
@@ -130,11 +145,11 @@ var webVelTopic = new ROSLIB.Topic({
 });
 
 
-move = function (linear, angular) {
+move = function (forward, left, angular) {
     var twist = new ROSLIB.Message({
         linear: {
-            x: linear,
-            y: 0,
+            x: forward,
+            y: left,
             z: 0
         },
         angular: {
@@ -145,7 +160,8 @@ move = function (linear, angular) {
     });
     webVelTopic.publish(twist);
     
-    document.getElementById("joystick_linear").textContent = linear.toFixed(2);
+    document.getElementById("joystick_forward").textContent = forward.toFixed(2);
+    document.getElementById("joystick_left").textContent = left.toFixed(2);
     document.getElementById("joystick_angular").textContent = angular.toFixed(2);
 }
 
