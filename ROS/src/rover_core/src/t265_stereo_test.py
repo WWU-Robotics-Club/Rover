@@ -75,6 +75,7 @@ class StereoCamera:
         self.getCam_Info()
         rospy.spin()        
 
+    # Get data from the Realsense Camera through its topics
     def getCam_Info(self):
         rospy.init_node('getCam_Info', anonymous=True)
         
@@ -84,7 +85,6 @@ class StereoCamera:
         self.left_img = rospy.Subscriber("/camera/fisheye1/image_raw", Image, self.LeftImage)
         self.right_img = rospy.Subscriber("/camera/fisheye2/image_raw", Image, self.RightImage )
 
-        
 
     def camera1(self, data):
         self.Left_K = np.resize(data.K, (3,3))
@@ -119,29 +119,6 @@ class StereoCamera:
 
         self.frame_mutex.release()
 
-
-    """
-    This callback is called on a separate thread, so we must use a mutex
-    to ensure that data is synchronized properly. We should also be
-    careful not to do much work on this thread to avoid data backing up in the
-    callback queue.
-    """
-    '''
-    def callback(frame):
-        global frame_data
-        if frame.is_frameset():
-            frameset = frame.as_frameset()
-            f1 = frameset.get_fisheye_frame(1).as_video_frame()
-            f2 = frameset.get_fisheye_frame(2).as_video_frame()
-            left_data = np.asanyarray(f1.get_data())
-            right_data = np.asanyarray(f2.get_data())
-            ts = frameset.get_timestamp()
-            frame_mutex.acquire()
-            frame_data["left"] = left_data
-            frame_data["right"] = right_data
-            frame_data["timestamp_ms"] = ts
-            frame_mutex.release()
-    '''
 
     def compute(self):
         try:
