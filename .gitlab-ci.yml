@@ -16,8 +16,8 @@ run_cpplint:
     - docker
   script:
     - cd Arduino
-    - find -name '*.h' -exec cpplint --filter=-legal/copyright,-build/include {} +
-    - find -name '*.cpp' -exec cpplint --filter=-legal/copyright,-build/include {} +
+    - find -name '*.h' -not -path "*/.pio/*" -exec cpplint --filter=-legal/copyright,-build/include,-runtime/threadsafe_fn {} +
+    - find -name '*.cpp' -not -path "*/.pio/*" -exec cpplint --filter=-legal/copyright,-build/include,-runtime/threadsafe_fn {} +
 
 run_cppcheck:
   stage: analysis
@@ -43,12 +43,23 @@ build_arduino:
   script:
     - find -name 'platformio.ini' -execdir platformio run \;
 
+generate_cert:
+  stage: deploy
+  tags:
+    - rover_remote
+  script:
+    - cd nginx
+    - bash generate_cert.sh
+  only:
+    refs:
+      - master
+
 deploy_docker:
   stage: deploy
   tags:
     - rover_remote
   script:
-    - docker-compose up -d --build
+    - docker-compose -f docker-compose.yml -f docker-compose-usb.yml up -d --build
   only:
     refs:
       - master
@@ -62,3 +73,8 @@ upload_arduino:
     - cd Arduino
     - find -name 'platformio.ini' -execdir platformio run --target upload \;
   when: manual
+#  only:
+#    refs:
+#      - master
+
+

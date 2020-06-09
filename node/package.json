@@ -1,0 +1,27 @@
+{
+  "name": "rover-web",
+  "version": "1.0.0",
+  "description": "rosbridge web interface",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \\\"Error: no test specified\\\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WWU-Robotics-Club/Rover.git"
+  },
+  "keywords": [
+    "ROS"
+  ],
+  "author": "CalebJ2",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WWU-Robotics-Club/Rover/issues"
+  },
+  "homepage": "https://github.com/WWU-Robotics-Club/Rover#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "ws": "^7.2.1"
+  }
+}
