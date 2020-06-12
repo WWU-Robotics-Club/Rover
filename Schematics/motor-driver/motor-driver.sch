@@ -4,9 +4,9 @@ EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
-Title ""
+Title "Motor Driver"
 Date ""
-Rev ""
+Rev "2"
 Comp ""
 Comment1 ""
 Comment2 ""
