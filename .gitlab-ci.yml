@@ -71,7 +71,7 @@ upload_arduino:
   script:
     # todo: do this in docker container
     - cd Arduino
-    - find -name 'platformio.ini' -execdir platformio run --target upload \;
+    - find -name 'platformio.ini' -execdir platformio run --environment auto-deploy --target upload \;
   when: manual
 #  only:
 #    refs:
