@@ -14,25 +14,9 @@ always be limited compared to (e.g.) the D4XX series cameras. However, T265 does
 have two global shutter cameras in a stereo configuration, and in this example
 we show how to set up OpenCV to undistort the images and compute stereo depth
 from them.
-
-Getting started with python3, OpenCV and T265 on Ubuntu 16.04:
-
-First, set up the virtual enviroment:
-
-$ apt-get install python3-venv  # install python3 built in venv support
-$ python3 -m venv py3librs      # create a virtual environment in pylibrs
-$ source py3librs/bin/activate  # activate the venv, do this from every terminal
-$ pip install opencv-python     # install opencv 4.1 in the venv
-$ pip install pyrealsense2      # install librealsense python bindings
-
-Then, for every new terminal:
-
-$ source py3librs/bin/activate  # Activate the virtual environment
-$ python3 t265_stereo.py        # Run the example
 """
 
-
-# Import OpenCV and numpy
+# Import OpenCV, numpy, & ROS libraries
 import cv2
 import rospy
 import numpy as np
@@ -52,7 +36,9 @@ distortion model in their "fisheye" module, more details can be found here:
 
 https://docs.opencv.org/3.4/db/d58/group__calib3d__fisheye.html
 """
-class StereoCamera:
+
+
+class T265_StereoCamera:
     def __init__(self):
         self.left_sub = None
         self.right_sub = None
@@ -63,42 +49,49 @@ class StereoCamera:
         self.height = None
         self.width = None
         self.R_cam = None
-        
-        # Set up a mutex to share data between threads 
+        self.depth = None
+
+        # Set up a mutex to share data between threads
         self.frame_mutex = Lock()
-        self.frame_data = {"left"  : None,
-                    "right" : None,
-                    "timestamp_ms" : None
-                    }
+        self.frame_data = {"left":  None,
+                           "right":  None,
+                           "timestamp_ms":  None
+                           }
 
         self.bridge = CvBridge()
-        self.getCam_Info()
-        rospy.spin()        
+        self.T265_Data()
+        rospy.spin()
 
     # Get data from the Realsense Camera through its topics
-    def getCam_Info(self):
-        rospy.init_node('getCam_Info', anonymous=True)
-        
-        self.left_sub = rospy.Subscriber("/camera/fisheye1/camera_info", CameraInfo, self.camera1)
-        self.right_sub = rospy.Subscriber("/camera/fisheye2/camera_info", CameraInfo, self.camera2)
-        
+    # Fisheye1 is left fisheye camera
+    # Fisheye2 is right fisheye camera
+    def T265_Data(self):
+        rospy.init_node('T265_Stereo', anonymous=True)
+
+        self.left_sub = rospy.Subscriber("/camera/fisheye1/camera_info", CameraInfo, self.fisheye1)
+        self.right_sub = rospy.Subscriber("/camera/fisheye2/camera_info", CameraInfo, self.fisheye2)
+
         self.left_img = rospy.Subscriber("/camera/fisheye1/image_raw", Image, self.LeftImage)
-        self.right_img = rospy.Subscriber("/camera/fisheye2/image_raw", Image, self.RightImage )
+        self.right_img = rospy.Subscriber("/camera/fisheye2/image_raw", Image, self.RightImage)
 
-
-    def camera1(self, data):
-        self.Left_K = np.resize(data.K, (3,3))
-        self.Left_D = np.resize(data.D, (1,4))
+    # Get intrinsics from left fisheye camera
+    def fisheye1(self, data):
+        self.Left_K = np.resize(data.K, (3, 3))
+        self.Left_D = np.resize(data.D, (1, 4))
+        # Height and Width same for both fisheye cameras
         self.height = data.height
         self.width = data.width
-        self.R_cam = np.resize(data.R, (3,3))
+        self.R_cam = np.resize(data.R, (3, 3))
 
         self.compute()
 
-    def camera2(self, data):
-        self.Right_K = np.resize(data.K, (3,3))
-        self.Right_D = np.resize(data.D, (1,4))
+    # Get intrinsics from right fisheye camera
+    def fisheye2(self, data):
+        self.Right_K = np.resize(data.K, (3, 3))
+        self.Right_D = np.resize(data.D, (1, 4))
 
+    # Convert Left Fisheye image through CV Bridge
+    # to provide camera stream
     def LeftImage(self, data):
         self.frame_mutex.acquire()
         try:
@@ -109,6 +102,8 @@ class StereoCamera:
 
         self.frame_mutex.release()
 
+    # Convert right fisheye image through CV Bridge
+    # to provide camera stream
     def RightImage(self, data):
         self.frame_mutex.acquire()
         try:
@@ -119,6 +114,18 @@ class StereoCamera:
 
         self.frame_mutex.release()
 
+    # Displays depth(m) in corners and middle of camera
+    def display_depth(self):
+        print("middle")
+        print(self.depth[150][150])
+        print("topleft")
+        print(self.depth[0][0])
+        print("topright")
+        print(self.depth[0][299])
+        print("bottom left")
+        print(self.depth[299][0])
+        print("bottom right")
+        print(self.depth[299][299])
 
     def compute(self):
         try:
@@ -134,23 +141,21 @@ class StereoCamera:
             # must be divisible by 16
             num_disp = 112 - min_disp
             max_disp = min_disp + num_disp
-            stereo = cv2.StereoSGBM_create(minDisparity = min_disp,
-                                        numDisparities = num_disp,
-                                        blockSize = 16,
-                                        P1 = 8*3*window_size**2,
-                                        P2 = 32*3*window_size**2,
-                                        disp12MaxDiff = 1,
-                                        uniquenessRatio = 10,
-                                        speckleWindowSize = 100,
-                                        speckleRange = 32)
+            stereo = cv2.StereoSGBM_create(minDisparity=min_disp,
+                                           numDisparities=num_disp,
+                                           blockSize=16,
+                                           P1=8*3*window_size**2,
+                                           P2=32*3*window_size**2,
+                                           disp12MaxDiff=1,
+                                           uniquenessRatio=10,
+                                           speckleWindowSize=100,
+                                           speckleRange=32)
 
-
-        
             # Get the relative extrinsics between the left and right camera
 
             R = np.array([[0.999986708, .000505891512, .00513231847],
-                        [-0.000483156764, 0.999990046, 0.00442992477],
-                        [0.00513450988, -0.00442738598, 0.999977052]])
+                         [-0.000483156764, 0.999990046, 0.00442992477],
+                         [0.00513450988, -0.00442738598, 0.999977052]])
 
             T = np.array([-0.0645980090, 0.00000026935603, -0.0000956418808])
 
@@ -189,17 +194,17 @@ class StereoCamera:
             # that the right projection matrix should have a shift along the x axis of
             # baseline*focal_length
             P_left = np.array([[stereo_focal_px, 0, stereo_cx, 0],
-                            [0, stereo_focal_px, stereo_cy, 0],
-                            [0,               0,         1, 0]])
+                              [0, stereo_focal_px, stereo_cy, 0],
+                              [0,               0,         1, 0]])
             P_right = P_left.copy()
             P_right[0][3] = T[0]*stereo_focal_px
 
             # Construct Q for use with cv2.reprojectImageTo3D. Subtract max_disp from x
             # since we will crop the disparity later
             Q = np.array([[1, 0,       0, -(stereo_cx - max_disp)],
-                        [0, 1,       0, -stereo_cy],
-                        [0, 0,       0, stereo_focal_px],
-                        [0, 0, -1/T[0], 0]])
+                         [0, 1,       0, -stereo_cy],
+                         [0, 0,       0, stereo_focal_px],
+                         [0, 0, -1/T[0], 0]])
 
             # Create an undistortion map for the left and right camera which applies the
             # rectification and undoes the camera distortion. This only has to be done
@@ -207,9 +212,9 @@ class StereoCamera:
             m1type = cv2.CV_32FC1
             (lm1, lm2) = cv2.fisheye.initUndistortRectifyMap(self.Left_K, self.Left_D, R_left, P_left, stereo_size, m1type)
             (rm1, rm2) = cv2.fisheye.initUndistortRectifyMap(self.Right_K, self.Right_D, R_right, P_right, stereo_size, m1type)
-            
-            undistort_rectify = {"left"  : (lm1, lm2),
-                                "right" : (rm1, rm2)}
+
+            undistort_rectify = {"left": (lm1, lm2),
+                                 "right": (rm1, rm2)}
 
             mode = "stack"
             if True:
@@ -222,30 +227,40 @@ class StereoCamera:
                 if valid:
                     # Hold the mutex only long enough to copy the stereo frames
                     self.frame_mutex.acquire()
-                    frame_copy = {"left"  : self.frame_data["left"].copy(),
-                                "right" : self.frame_data["right"].copy()}
+                    frame_copy = {"left": self.frame_data["left"].copy(),
+                                  "right": self.frame_data["right"].copy()}
                     self.frame_mutex.release()
 
                     # Undistort and crop the center of the frames
-                    center_undistorted = {"left" : cv2.remap(src = frame_copy["left"],
-                                                map1 = undistort_rectify["left"][0],
-                                                map2 = undistort_rectify["left"][1],
-                                                interpolation = cv2.INTER_LINEAR),
-                                        "right" : cv2.remap(src = frame_copy["right"],
-                                                map1 = undistort_rectify["right"][0],
-                                                map2 = undistort_rectify["right"][1],
+                    center_undistorted = {"left": cv2.remap(src=frame_copy["left"],
+                                                map1=undistort_rectify["left"][0],
+                                                map2=undistort_rectify["left"][1],
+                                                interpolation=cv2.INTER_LINEAR),
+                                          "right": cv2.remap(src=frame_copy["right"],
+                                                map1=undistort_rectify["right"][0],
+                                                map2=undistort_rectify["right"][1],
                                                 interpolation = cv2.INTER_LINEAR)}
 
                     # compute the disparity on the center of the frames and convert it to a pixel disparity (divide by DISP_SCALE=16)
                     disparity = stereo.compute(center_undistorted["left"], center_undistorted["right"]).astype(np.float32) / 16.0
 
                     # re-crop just the valid part of the disparity
-                    disparity = disparity[:,max_disp:]
+                    disparity = disparity[:, max_disp:]
 
                     # convert disparity to 0-255 and color it
-                    disp_vis = 255*(disparity - min_disp)/ num_disp
-                    disp_color = cv2.applyColorMap(cv2.convertScaleAbs(disp_vis,1), cv2.COLORMAP_JET)
-                    color_image = cv2.cvtColor(center_undistorted["left"][:,max_disp:], cv2.COLOR_GRAY2RGB)
+                    disp_vis = 255*(disparity - min_disp) / num_disp
+                    disp_color = cv2.applyColorMap(cv2.convertScaleAbs(disp_vis, 1), cv2.COLORMAP_JET)
+                    color_image = cv2.cvtColor(center_undistorted["left"][:, max_disp:], cv2.COLOR_GRAY2RGB)
+
+                    # distance between both cameras in mm
+                    baseline = 64
+                    # convert mm to m
+                    units = 0.001
+                    # Calculate distance through disparity
+                    # https://answers.opencv.org/question/30117/calculate-distance-using-disparity-map/
+                    self.depth = (stereo_focal_px * baseline * units) / (disparity)
+
+                    self.display_depth()
 
                     if mode == "stack":
                         cv2.imshow(WINDOW_TITLE, np.hstack((color_image, disp_color)))
@@ -260,10 +275,9 @@ class StereoCamera:
                 if key == ord('o'): mode = "overlay"
                 if key == ord('q') or cv2.getWindowProperty(WINDOW_TITLE, cv2.WND_PROP_VISIBLE) < 1:
                     pass
-                
 
         finally:
             pass
 
 if __name__ == '__main__':
-    cam = StereoCamera()
+    T265_StereoCamera()
