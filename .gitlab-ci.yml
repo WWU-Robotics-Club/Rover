@@ -41,7 +41,10 @@ build_arduino:
   tags:
     - docker
   script:
-    - find -name 'platformio.ini' -execdir platformio run \;
+    - cd Arduino
+    - cd ROS-motor-control 
+    - platformio run --environment auto-deploy
+    - cd ..
 
 generate_cert:
   stage: deploy
@@ -49,7 +52,7 @@ generate_cert:
     - rover_remote
   script:
     - cd nginx
-    - bash generate_cert.sh
+    - bash generate-cert.sh
   only:
     refs:
       - master
@@ -71,10 +74,10 @@ upload_arduino:
   script:
     # todo: do this in docker container
     - cd Arduino
-    - find -name 'platformio.ini' -execdir platformio run --environment auto-deploy --target upload \;
+    - cd ROS-motor-control 
+    - platformio run --environment auto-deploy --target upload
+    - cd ..
   when: manual
 #  only:
 #    refs:
 #      - master
-
-
